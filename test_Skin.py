@@ -1,4 +1,4 @@
-from pircing import get_price,net_price
+from pricing import get_price,net_price
 
 def test_24h():
     item = {

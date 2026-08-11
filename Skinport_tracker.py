@@ -1,22 +1,11 @@
 import requests
-import sqlite3
 from datetime import datetime
 import time
-from pircing import get_price, net_price
-conn = sqlite3.connect("prices.db")
+from pricing import get_price, net_price
+from storage import connect,save_price
+conn = connect()
 cur = conn.cursor()
 
-cur.execute("""
-CREATE TABLE IF NOT EXISTS prices(
-        id INTEGER PRIMARY KEY,
-        name TEXT NOT NULL,
-        price REAL,
-        net REAL,
-        volume INTEGER,
-        checked_at TEXT NOT NULL
-)
-""")
-conn.commit()
 #requests
 URL = "https://api.skinport.com/v1/sales/history"
 
@@ -53,11 +42,7 @@ while True:
         net= net_price(price)
         volume = item["last_24_hours"]["volume"]
         print(f"{name}, {price} EUR, net {net:.2f} EUR")
-
-        cur.execute("INSERT INTO prices(name,price,net,volume,checked_at) VALUES (?,?,?,?,?)",
-                (name,price,net,volume,datetime.now().isoformat())
-    )
-
-    conn.commit()
+        save_price(conn,name,price,net,volume)
+        conn.commit()
     print(f"SAVED:{datetime.now():%H:%M:%S},pause for 30 minutes")
     time.sleep(1800)
