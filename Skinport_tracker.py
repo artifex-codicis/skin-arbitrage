@@ -2,10 +2,18 @@ import requests
 
 URL = "https://api.skinport.com/v1/sales/history"
 
+WATCHLIST = [
+    "Frost Avalanche",
+    "The Resurrection of Shen - Wings",
+    "Manifold Paradox",
+    "The Devotions of Dragonus - Wings",
+    "Fractal Horns of Inner Abysm"
+]
+
 params = {
-    "app_id":730,
+    "app_id":570,
     "currency":"EUR",
-    "market_hash_name": "AK-47 | Redline (Field-Tested)",
+    "market_hash_name":"," .join(WATCHLIST),
 }
 headers = {"Accept-Encoding":"br"}
 
@@ -19,9 +27,11 @@ print(data)
 item = data[0]
 
 def get_price(item):
-    if item["last_24_hours"]["volume"] == 0:
-        return item["last_7_days"]["median"]
-    return item["last_24_hours"]["median"]
+   for period in ("last_24_hours","last_7_days","last_30_days"):
+       median = item[period]["median"]
+       if median is not None:
+           return median
+   return None
 
 def net_price(price):
     if price <= 100 :
@@ -34,6 +44,8 @@ def net_price(price):
 for item in data:
     name = item["market_hash_name"]
     price = get_price(item)
+    if price is None:
+        print(f"{name} has no price")
+        continue
     net= net_price(price)
-    print(f"{name}, {price} EUR, net {net} EUR")
-
+    print(f"{name}, {price} EUR, net {net:.2f} EUR")
