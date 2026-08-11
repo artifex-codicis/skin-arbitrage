@@ -2,7 +2,7 @@ import requests
 import sqlite3
 from datetime import datetime
 import time
-
+from pircing import get_price, net_price
 conn = sqlite3.connect("prices.db")
 cur = conn.cursor()
 
@@ -36,23 +36,6 @@ params = {
 headers = {"Accept-Encoding":"br"}
 
 
-# def
-def get_price(item):
-    for period in ("last_24_hours", "last_7_days", "last_30_days", "last_90_days"):
-        median = item[period]["median"]
-        if median is not None:
-            return median
-    return None
-
-
-def net_price(price):
-    if price <= 100:
-        return price * (1 - 0.15)  # suka оставляем что получилось
-    elif price <= 200:
-        return price * (1 - 0.12)
-    else:
-        return price * (1 - 0.05)
-
 while True:
     try:
         response = requests.get(URL, params=params,headers = headers)
@@ -76,5 +59,5 @@ while True:
     )
 
     conn.commit()
-    print(f"SAVED:{datatime.now():%H:%M:%S},pause for 30 minutes")
+    print(f"SAVED:{datetime.now():%H:%M:%S},pause for 30 minutes")
     time.sleep(1800)

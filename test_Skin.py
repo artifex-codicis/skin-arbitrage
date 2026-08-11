@@ -1,4 +1,4 @@
-from Skinport_tracker import get_price,net_price
+from pircing import get_price,net_price
 
 def test_24h():
     item = {
